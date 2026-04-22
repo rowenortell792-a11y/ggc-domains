@@ -1,134 +1,38 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>GGC Domains</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #0f0f0f;
-      color: white;
-      padding: 40px;
+<script>
+function buyDomain(domain, price) {
+  let paymentLink = "https://cash.app/$YourCashTag"; // CHANGE THIS
+
+  let confirmPay = confirm(
+    `Send $${price} to complete purchase of ${domain}.\n\nPress OK to go to payment.`
+  );
+
+  if (confirmPay) {
+    window.open(paymentLink, "_blank");
+
+    // After payment, user enters confirmation
+    let code = prompt("Enter payment confirmation code:");
+
+    if (code === "GGC2026") {
+      completePurchase(domain, price);
+    } else {
+      alert("❌ Invalid code. Purchase not completed.");
     }
+  }
+}
 
-    h1 {
-      font-size: 32px;
-      margin-bottom: 20px;
-    }
+function completePurchase(domain, price) {
+  let purchases = JSON.parse(localStorage.getItem("ggcDomains")) || [];
 
-    input {
-      padding: 12px;
-      font-size: 16px;
-      width: 250px;
-      border-radius: 5px;
-      border: none;
-      outline: none;
-    }
+  purchases.push({
+    name: domain,
+    price: price,
+    date: new Date().toLocaleString()
+  });
 
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 5px;
-      background: #00ff99;
-      color: black;
-      cursor: pointer;
-    }
+  localStorage.setItem("ggcDomains", JSON.stringify(purchases));
 
-    button:hover {
-      background: #00cc77;
-    }
+  alert(`🔥 ${domain} is now yours!`);
 
-    #result {
-      margin-top: 25px;
-      font-size: 20px;
-    }
-
-    .buy-btn {
-      margin-top: 15px;
-      background: #ffaa00;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>🌐 GGC Domains</h1>
-
-  <input id="domainInput" placeholder="Enter domain (e.g. mysite.com)">
-  <br>
-  <button onclick="checkDomain()">Check Availability</button>
-
-  <div id="result"></div>
-
-  <script>
-    function getPrice(domain) {
-      if (domain.endsWith(".com")) return 15;
-      if (domain.endsWith(".net")) return 18;
-      if (domain.endsWith(".org")) return 16;
-      if (domain.endsWith(".io")) return 35;
-      if (domain.endsWith(".ai")) return 45;
-      return 20;
-    }
-
-    function checkDomain() {
-      let domain = document.getElementById("domainInput").value.trim().toLowerCase();
-
-      if (!domain.includes(".")) {
-        document.getElementById("result").innerHTML = "❌ Enter a valid domain (example.com)";
-        return;
-      }
-
-      // Fake availability (for now)
-      let available = Math.random() > 0.3;
-
-      let price = getPrice(domain);
-
-      if (available) {
-        document.getElementById("result").innerHTML =
-          `✅ <b>${domain}</b> is available<br>
-           💰 Price: $${price}/year<br>
-           <button class="buy-btn" onclick="buyDomain('${domain}', ${price})">Buy Now</button>`;
-      } else {
-        document.getElementById("result").innerHTML =
-          `❌ <b>${domain}</b> is already taken`;
-      }
-    }
-
-    function buyDomain(domain, price) {
-      let purchases = JSON.parse(localStorage.getItem("ggcDomains")) || [];
-
-      purchases.push({
-        name: domain,
-        price: price,
-        date: new Date().toLocaleString()
-      });
-
-      localStorage.setItem("ggcDomains", JSON.stringify(purchases));
-
-      alert(`🔥 You secured ${domain} for $${price} (demo mode)`);
-
-      showOwnedDomains();
-    }
-
-    function showOwnedDomains() {
-      let purchases = JSON.parse(localStorage.getItem("ggcDomains")) || [];
-
-      if (purchases.length === 0) return;
-
-      let list = "<h3>📦 Your Domains:</h3>";
-
-      purchases.forEach(d => {
-        list += `<div>${d.name} - $${d.price}</div>`;
-      });
-
-      document.getElementById("result").innerHTML += "<br>" + list;
-    }
-
-    // Load saved domains on page load
-    window.onload = showOwnedDomains;
-  </script>
-
-</body>
-</html>
+  showOwnedDomains();
+}
+</script>
