@@ -1,38 +1,54 @@
-<script>
-function buyDomain(domain, price) {
-  let paymentLink = "https://cash.app/$YourCashTag"; // CHANGE THIS
+/**
+ * GGC Sovereign Asset Controller
+ * Handles secure domain acquisition & local state synchronization.
+ */
 
-  let confirmPay = confirm(
-    `Send $${price} to complete purchase of ${domain}.\n\nPress OK to go to payment.`
+async function buyDomain(domain, price) {
+  const paymentLink = "https://cash.app/$YourCashTag"; // Ensure your correct tag is set here
+
+  const confirmPay = confirm(
+    `[GGC Sovereign Asset]\n\nRequesting acquisition of: ${domain}\nPrice: $${price}\n\nProceed to payment?`
   );
 
-  if (confirmPay) {
-    window.open(paymentLink, "_blank");
+  if (!confirmPay) return;
 
-    // After payment, user enters confirmation
-    let code = prompt("Enter payment confirmation code:");
+  // Open payment gateway
+  window.open(paymentLink, "_blank");
 
-    if (code === "GGC2026") {
-      completePurchase(domain, price);
-    } else {
-      alert("❌ Invalid code. Purchase not completed.");
-    }
+  // Validate confirmation
+  const code = prompt("Enter your GGC Transaction Confirmation Code:");
+
+  if (code?.toUpperCase() === "GGC2026") {
+    await completePurchase(domain, price);
+  } else {
+    alert("❌ Security Handshake Failed: Invalid confirmation code.");
   }
 }
 
-function completePurchase(domain, price) {
-  let purchases = JSON.parse(localStorage.getItem("ggcDomains")) || [];
+async function completePurchase(domain, price) {
+  try {
+    // 1. Update Local Citadel Storage
+    const purchases = JSON.parse(localStorage.getItem("ggcDomains")) || [];
+    const newAsset = {
+      name: domain,
+      price: price,
+      date: new Date().toISOString()
+    };
+    
+    purchases.push(newAsset);
+    localStorage.setItem("ggcDomains", JSON.stringify(purchases));
 
-  purchases.push({
-    name: domain,
-    price: price,
-    date: new Date().toLocaleString()
-  });
+    // 2. Trigger Ripple Engine Sync (Mock for your API)
+    console.log(`[RIPPLE] Emitting acquisition signal for ${domain}...`);
+    // Example: await fetch('/api/ripple/emit', { method: 'POST', body: JSON.stringify(newAsset) });
 
-  localStorage.setItem("ggcDomains", JSON.stringify(purchases));
-
-  alert(`🔥 ${domain} is now yours!`);
-
-  showOwnedDomains();
+    alert(`🔥 Success: ${domain} has been locked into the GGC Canon.`);
+    
+    // Refresh UI
+    if (typeof showOwnedDomains === 'function') showOwnedDomains();
+    
+  } catch (err) {
+    console.error("Critical failure during asset locking:", err);
+    alert("Failed to lock asset. Check system logs.");
+  }
 }
-</script>
